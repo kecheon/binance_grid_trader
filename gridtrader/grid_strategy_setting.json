@@ -22,5 +22,16 @@
             "invest_coin": "BUSD",
             "max_open_orders": 5
         }
+    },
+    "test": {
+        "class_name": "FutureGridStrategy",
+        "vt_symbol": "BTCUSDT.BINANCE",
+        "setting": {
+            "upper_price": 30900.0,
+            "bottom_price": 28900.0,
+            "grid_number": 20,
+            "order_volume": 0.001,
+            "max_open_orders": 20
+        }
     }
 }

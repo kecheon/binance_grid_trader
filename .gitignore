@@ -111,6 +111,4 @@ venv.bak/
 log.txt
 
 /gridtrader/log/*
-
-
-
+.vscode/

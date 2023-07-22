@@ -21,7 +21,7 @@ from gridtrader.trader.constant import (
     Product,
     Status,
     OrderType,
-    Offset
+    Offset,
 )
 from gridtrader.trader.gateway import BaseGateway
 from gridtrader.trader.object import (
@@ -52,7 +52,7 @@ STATUS_BINANCES2VT: Dict[str, Status] = {
     "FILLED": Status.ALLTRADED,
     "CANCELED": Status.CANCELLED,
     "REJECTED": Status.REJECTED,
-    "EXPIRED": Status.CANCELLED
+    "EXPIRED": Status.CANCELLED,
 }
 
 ORDERTYPE_VT2BINANCES: Dict[OrderType, Tuple[str, str]] = {
@@ -60,15 +60,19 @@ ORDERTYPE_VT2BINANCES: Dict[OrderType, Tuple[str, str]] = {
     OrderType.MARKET: ("MARKET", "GTC"),
     OrderType.FAK: ("LIMIT", "IOC"),
     OrderType.FOK: ("LIMIT", "FOK"),
-    OrderType.LIMIT_MAKER: ("LIMIT", "GTX")
+    OrderType.LIMIT_MAKER: ("LIMIT", "GTX"),
 }
-ORDERTYPE_BINANCES2VT: Dict[Tuple[str, str], OrderType] = {v: k for k, v in ORDERTYPE_VT2BINANCES.items()}
+ORDERTYPE_BINANCES2VT: Dict[Tuple[str, str], OrderType] = {
+    v: k for k, v in ORDERTYPE_VT2BINANCES.items()
+}
 
 DIRECTION_VT2BINANCES: Dict[Direction, str] = {
     Direction.LONG: "BUY",
-    Direction.SHORT: "SELL"
+    Direction.SHORT: "SELL",
 }
-DIRECTION_BINANCES2VT: Dict[str, Direction] = {v: k for k, v in DIRECTION_VT2BINANCES.items()}
+DIRECTION_BINANCES2VT: Dict[str, Direction] = {
+    v: k for k, v in DIRECTION_VT2BINANCES.items()
+}
 
 
 class Security(Enum):
@@ -209,8 +213,9 @@ class BinancesRestApi(RestClient):
             request.params["timestamp"] = timestamp
 
             query = urllib.parse.urlencode(sorted(request.params.items()))
-            signature = hmac.new(self.secret, query.encode(
-                "utf-8"), hashlib.sha256).hexdigest()
+            signature = hmac.new(
+                self.secret, query.encode("utf-8"), hashlib.sha256
+            ).hexdigest()
 
             query += "&signature={}".format(signature)
             path = request.path + "?" + query
@@ -223,7 +228,7 @@ class BinancesRestApi(RestClient):
         headers = {
             "Content-Type": "application/x-www-form-urlencoded",
             "Accept": "application/json",
-            "X-MBX-APIKEY": self.key
+            "X-MBX-APIKEY": self.key,
         }
 
         if security in [Security.SIGNED, Security.API_KEY]:
@@ -232,12 +237,7 @@ class BinancesRestApi(RestClient):
         return request
 
     def connect(
-            self,
-            usdt_base: bool,
-            key: str,
-            secret: str,
-            proxy_host: str,
-            proxy_port: int
+        self, usdt_base: bool, key: str, secret: str, proxy_host: str, proxy_port: int
     ) -> None:
         """
         Initialize connection to REST server.
@@ -248,7 +248,7 @@ class BinancesRestApi(RestClient):
         self.proxy_port = proxy_port
         self.proxy_host = proxy_host
         self.connect_time = (
-                int(datetime.now().strftime("%y%m%d%H%M%S")) * self.order_count
+            int(datetime.now().strftime("%y%m%d%H%M%S")) * self.order_count
         )
 
         if self.usdt_base:
@@ -270,21 +270,14 @@ class BinancesRestApi(RestClient):
 
     def query_time(self) -> Request:
         """"""
-        data = {
-            "security": Security.NONE
-        }
+        data = {"security": Security.NONE}
 
         if self.usdt_base:
             path = "/fapi/v1/time"
         else:
             path = "/dapi/v1/time"
 
-        return self.add_request(
-            "GET",
-            path,
-            callback=self.on_query_time,
-            data=data
-        )
+        return self.add_request("GET", path, callback=self.on_query_time, data=data)
 
     def query_account(self) -> Request:
         """"""
@@ -296,18 +289,13 @@ class BinancesRestApi(RestClient):
             path = "/dapi/v1/account"
 
         self.add_request(
-            method="GET",
-            path=path,
-            callback=self.on_query_account,
-            data=data
+            method="GET", path=path, callback=self.on_query_account, data=data
         )
 
     def set_position_side(self) -> Request:
         data = {"security": Security.SIGNED}
 
-        params = {
-            "dualSidePosition": False
-        }
+        params = {"dualSidePosition": False}
 
         if self.usdt_base:
             path = "/fapi/v1/positionSide/dual"
@@ -318,7 +306,7 @@ class BinancesRestApi(RestClient):
             path=path,
             params=params,
             callback=self.on_set_position_side,
-            data=data
+            data=data,
         )
 
     def on_set_position_side(self, data: dict, request: Request) -> None:
@@ -335,10 +323,7 @@ class BinancesRestApi(RestClient):
             path = "/dapi/v1/positionRisk"
 
         self.add_request(
-            method="GET",
-            path=path,
-            callback=self.on_query_position,
-            data=data
+            method="GET", path=path, callback=self.on_query_position, data=data
         )
 
     def query_orders(self) -> None:
@@ -351,22 +336,14 @@ class BinancesRestApi(RestClient):
             path = "/dapi/v1/openOrders"
 
         self.add_request(
-            method="GET",
-            path=path,
-            callback=self.on_query_orders,
-            data=data
+            method="GET", path=path, callback=self.on_query_orders, data=data
         )
 
     def query_order(self, req: QueryRequest) -> None:
         """"""
-        data = {
-            "security": Security.SIGNED
-        }
+        data = {"security": Security.SIGNED}
 
-        params = {
-            "symbol": req.symbol,
-            "origClientOrderId": req.orderid
-        }
+        params = {"symbol": req.symbol, "origClientOrderId": req.orderid}
 
         if self.usdt_base:
             path = "/fapi/v1/order"
@@ -379,14 +356,12 @@ class BinancesRestApi(RestClient):
             callback=self.on_query_order,
             params=params,
             data=data,
-            extra=req
+            extra=req,
         )
 
     def query_contract(self) -> Request:
         """"""
-        data = {
-            "security": Security.NONE
-        }
+        data = {"security": Security.NONE}
 
         if self.usdt_base:
             path = "/fapi/v1/exchangeInfo"
@@ -394,10 +369,7 @@ class BinancesRestApi(RestClient):
             path = "/dapi/v1/exchangeInfo"
 
         self.add_request(
-            method="GET",
-            path=path,
-            callback=self.on_query_contract,
-            data=data
+            method="GET", path=path, callback=self.on_query_contract, data=data
         )
 
     def _new_order_id(self) -> int:
@@ -408,16 +380,11 @@ class BinancesRestApi(RestClient):
 
     def send_order(self, req: OrderRequest) -> str:
         """"""
-        orderid = "x-cLbi5uMH" + str(self.connect_time + self._new_order_id())
-        order = req.create_order_data(
-            orderid,
-            self.gateway_name
-        )
+        orderid = "x-FdBeCPuV" + str(self.connect_time + self._new_order_id())
+        order = req.create_order_data(orderid, self.gateway_name)
         self.gateway.on_order(order)
 
-        data = {
-            "security": Security.SIGNED
-        }
+        data = {"security": Security.SIGNED}
 
         order_type, time_condition = ORDERTYPE_VT2BINANCES[req.type]
 
@@ -447,21 +414,16 @@ class BinancesRestApi(RestClient):
             params=params,
             extra=order,
             on_error=self.on_send_order_error,
-            on_failed=self.on_send_order_failed
+            on_failed=self.on_send_order_failed,
         )
 
         return order.vt_orderid
 
     def cancel_order(self, req: CancelRequest) -> None:
         """"""
-        data = {
-            "security": Security.SIGNED
-        }
+        data = {"security": Security.SIGNED}
 
-        params = {
-            "symbol": req.symbol,
-            "origClientOrderId": req.orderid
-        }
+        params = {"symbol": req.symbol, "origClientOrderId": req.orderid}
 
         if self.usdt_base:
             path = "/fapi/v1/order"
@@ -474,14 +436,12 @@ class BinancesRestApi(RestClient):
             callback=self.on_cancel_order,
             params=params,
             data=data,
-            extra=req
+            extra=req,
         )
 
     def start_user_stream(self) -> None:
         """"""
-        data = {
-            "security": Security.API_KEY
-        }
+        data = {"security": Security.API_KEY}
 
         if self.usdt_base:
             path = "/fapi/v1/listenKey"
@@ -489,10 +449,7 @@ class BinancesRestApi(RestClient):
             path = "/dapi/v1/listenKey"
 
         self.add_request(
-            method="POST",
-            path=path,
-            callback=self.on_start_user_stream,
-            data=data
+            method="POST", path=path, callback=self.on_start_user_stream, data=data
         )
 
     def keep_user_stream(self) -> Request:
@@ -502,13 +459,9 @@ class BinancesRestApi(RestClient):
             return
         self.keep_alive_count = 0
 
-        data = {
-            "security": Security.API_KEY
-        }
+        data = {"security": Security.API_KEY}
 
-        params = {
-            "listenKey": self.user_stream_key
-        }
+        params = {"listenKey": self.user_stream_key}
 
         if self.usdt_base:
             path = "/fapi/v1/listenKey"
@@ -519,7 +472,7 @@ class BinancesRestApi(RestClient):
             path=path,
             callback=self.on_keep_user_stream,
             params=params,
-            data=data
+            data=data,
         )
 
     def on_query_time(self, data: dict, request: Request) -> None:
@@ -535,7 +488,7 @@ class BinancesRestApi(RestClient):
                 accountid=asset["asset"],
                 balance=float(asset["walletBalance"]),
                 frozen=float(asset["maintMargin"]),
-                gateway_name=self.gateway_name
+                gateway_name=self.gateway_name,
             )
 
             # if account.balance:
@@ -550,7 +503,7 @@ class BinancesRestApi(RestClient):
         # symbols = self.market_ws_api.ticks.keys()
 
         for d in data:
-            if d['positionSide'] == "BOTH":
+            if d["positionSide"] == "BOTH":
                 position = PositionData(
                     symbol=d["symbol"],
                     exchange=Exchange.BINANCE,
@@ -659,7 +612,7 @@ class BinancesRestApi(RestClient):
         self.gateway.write_log(msg)
 
     def on_send_order_error(
-            self, exception_type: type, exception_value: Exception, tb, request: Request
+        self, exception_type: type, exception_value: Exception, tb, request: Request
     ) -> None:
         """
         Callback when sending order caused exception.
@@ -725,15 +678,14 @@ class BinancesTradeWebsocketApi(WebsocketClient):
                 accountid=acc_data["a"],
                 balance=float(acc_data["wb"]),
                 frozen=float(acc_data["wb"]) - float(acc_data["cw"]),
-                gateway_name=self.gateway_name
+                gateway_name=self.gateway_name,
             )
 
             # if account.balance:
             self.gateway.on_account(account)
 
         for pos_data in packet["a"]["P"]:
-
-            if pos_data['ps'] == "BOTH":
+            if pos_data["ps"] == "BOTH":
                 position = PositionData(
                     symbol=pos_data["s"],
                     exchange=Exchange.BINANCE,
@@ -764,7 +716,7 @@ class BinancesTradeWebsocketApi(WebsocketClient):
             traded=Decimal(ord_data["z"]),
             status=STATUS_BINANCES2VT[ord_data["X"]],
             datetime=generate_datetime(packet["E"]),
-            gateway_name=self.gateway_name
+            gateway_name=self.gateway_name,
         )
 
         # Push trade event
@@ -803,10 +755,10 @@ class BinancesDataWebsocketApi(WebsocketClient):
         self.usdt_base = False
 
     def connect(
-            self,
-            usdt_base: bool,
-            proxy_host: str,
-            proxy_port: int,
+        self,
+        usdt_base: bool,
+        proxy_host: str,
+        proxy_port: int,
     ) -> None:
         """"""
         self.usdt_base = usdt_base
