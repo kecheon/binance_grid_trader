@@ -284,9 +284,9 @@ class BinancesRestApi(RestClient):
         data = {"security": Security.SIGNED}
 
         if self.usdt_base:
-            path = "/fapi/v1/account"
+            path = "/fapi/v2/account"
         else:
-            path = "/dapi/v1/account"
+            path = "/dapi/v2/account"
 
         self.add_request(
             method="GET", path=path, callback=self.on_query_account, data=data
@@ -306,6 +306,21 @@ class BinancesRestApi(RestClient):
             path=path,
             params=params,
             callback=self.on_set_position_side,
+            data=data,
+        )
+
+    def set_leverage(self, symbol, leverage) -> Request:
+        data = {"security": Security.SIGNED}
+        params = {
+            "symbol": symbol,
+            "leverage": leverage
+        }
+        path = "/fapi/v1/leverage"
+        self.add_request(
+             method="POST",
+            path=path,
+            params=params,
+            callback=self.on_set_leverage,
             data=data,
         )
 
@@ -599,6 +614,10 @@ class BinancesRestApi(RestClient):
     def on_send_order(self, data: dict, request: Request) -> None:
         """"""
         pass
+
+    def on_set_leverage(self, data:dict, request: Request) -> None:
+        msg = f"set leverage， Code: {request.response.status_code}, Msg：{request.response.text}"
+        print(msg)
 
     def on_send_order_failed(self, status_code: str, request: Request) -> None:
         """
