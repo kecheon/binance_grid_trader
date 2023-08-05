@@ -355,19 +355,19 @@ class CtaManager(QtWidgets.QWidget):
         # Create widgets
         self.class_combo = QtWidgets.QComboBox()
 
-        add_button = QtWidgets.QPushButton("Add Strategy")
+        add_button = QtWidgets.QPushButton("새 전략")
         add_button.clicked.connect(self.add_strategy)
 
-        init_button = QtWidgets.QPushButton("Init All Strategies")
+        init_button = QtWidgets.QPushButton("매매 준비")
         init_button.clicked.connect(self.cta_engine.init_all_strategies)
 
-        start_button = QtWidgets.QPushButton("Start All Strategies")
+        start_button = QtWidgets.QPushButton("매매 개시")
         start_button.clicked.connect(self.cta_engine.start_all_strategies)
 
-        stop_button = QtWidgets.QPushButton("Stop All Strategies")
+        stop_button = QtWidgets.QPushButton("매매 중단")
         stop_button.clicked.connect(self.cta_engine.stop_all_strategies)
 
-        clear_button = QtWidgets.QPushButton("Clear Logs")
+        clear_button = QtWidgets.QPushButton("로그 삭제")
         clear_button.clicked.connect(self.clear_log)
 
         self.scroll_layout = QtWidgets.QVBoxLayout()
@@ -486,21 +486,21 @@ class StrategyManager(QtWidgets.QFrame):
         self.setFrameShape(self.Box)
         self.setLineWidth(1)
 
-        self.init_button = QtWidgets.QPushButton("Init")
+        self.init_button = QtWidgets.QPushButton("매매 준비")
         self.init_button.clicked.connect(self.init_strategy)
 
-        self.start_button = QtWidgets.QPushButton("Start")
+        self.start_button = QtWidgets.QPushButton("매매 개시")
         self.start_button.clicked.connect(self.start_strategy)
         self.start_button.setEnabled(False)
 
-        self.stop_button = QtWidgets.QPushButton("Stop")
+        self.stop_button = QtWidgets.QPushButton("매매 중단")
         self.stop_button.clicked.connect(self.stop_strategy)
         self.stop_button.setEnabled(False)
 
-        self.edit_button = QtWidgets.QPushButton("Edit")
+        self.edit_button = QtWidgets.QPushButton("수정")
         self.edit_button.clicked.connect(self.edit_strategy)
 
-        self.remove_button = QtWidgets.QPushButton("Remove")
+        self.remove_button = QtWidgets.QPushButton("삭제")
         self.remove_button.clicked.connect(self.remove_strategy)
 
         strategy_name = self._data["strategy_name"]
