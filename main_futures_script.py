@@ -44,8 +44,8 @@ if __name__ == "__main__":
     # before running, remember to past your api here.
 
     futures_settings = {
-        "key": "past your api key from binance exchange",
-        "secret": "past your api secret from binance exchange",
+        "key": "41GkmjbBhBUylGvlghfHdAczo2mMBZcpjfAWq4mLEjIU3pv5O39V1fkO7TIqTl43",
+        "secret": "N9wl8yJ2CyQmwcPQJWKYck5CVmATwOwyILckLe1gVHMBkmLxC3zCnOoZs9uk2xJm",
         "futures_type": "USDT",
         "proxy_host": "",
         "proxy_port": 0

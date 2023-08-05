@@ -1,0 +1,14 @@
+{
+    "btcbusd": {
+        "pos": 0,
+        "avg_price": 0.0,
+        "step_price": 0.0,
+        "trade_times": 0
+    },
+    "test": {
+        "pos": -0.02,
+        "avg_price": 29100.0,
+        "step_price": 50.0,
+        "trade_times": 1
+    }
+}
