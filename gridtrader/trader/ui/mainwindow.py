@@ -31,7 +31,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.main_engine: MainEngine = main_engine
         self.event_engine: EventEngine = event_engine
 
-        self.window_title: str = f"Binance Grid Trader {gridtrader.__version__} [{TRADER_DIR}]"
+        self.window_title: str = f"BeeBot-Binance Grid[{TRADER_DIR}]"
 
         self.widgets: Dict[str, QtWidgets.QWidget] = {}
         self.init_ui()

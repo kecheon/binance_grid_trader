@@ -27,7 +27,7 @@ def excepthook(exctype: type, value: Exception, tb: types.TracebackType) -> None
     sys.stderr.write(msg)
 
 
-def create_qapp(app_name: str = "Binance Grid Trader") -> QtWidgets.QApplication:
+def create_qapp(app_name: str = "BeeBot-Binance Grid") -> QtWidgets.QApplication:
     """
     Create Qt Application.
     """

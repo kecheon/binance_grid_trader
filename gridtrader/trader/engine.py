@@ -261,7 +261,7 @@ class LogEngine(BaseEngine):
 
         self.level: int = SETTINGS["log.level"]
 
-        self.logger: logging.Logger = logging.getLogger("Binance Grid Trader")
+        self.logger: logging.Logger = logging.getLogger("BeeBot-Binance Grid")
         self.logger.setLevel(self.level)
 
         self.formatter = logging.Formatter(
