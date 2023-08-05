@@ -660,12 +660,12 @@ class SettingEditor(QtWidgets.QDialog):
 
         # Add vt_symbol and name edit if add new strategy
         if self.class_name:
-            self.setWindowTitle(f"Add Strategy：{self.class_name}")
+            self.setWindowTitle(f"새 전략：{self.class_name}")
             button_text = "확인"
             parameters = {"strategy_name": "", "vt_symbol": ""}
             parameters.update(self.parameters)
         else:
-            self.setWindowTitle(f"Edit Parameters：{self.strategy_name}")
+            self.setWindowTitle(f"파라미터 수정：{self.strategy_name}")
             button_text = "확인"
             parameters = self.parameters
 
@@ -680,7 +680,26 @@ class SettingEditor(QtWidgets.QDialog):
                 validator = QtGui.QDoubleValidator()
                 edit.setValidator(validator)
 
-            form.addRow(f"{name} {type_}", edit)
+            value = ""
+            if name == "strategy_name":
+                value = "전략 이름"
+            if name == "vt_symbol":
+                value = "코인 심볼"
+            elif name == "bottom_price":
+                value = "가격 하한"
+            elif name == "upper_price":
+                value = "가격 상한"
+            elif name == "grid_number":
+                value = "그리드 갯수"
+            elif name == "order_volume":
+                value = "주문수량"
+            elif name == "max_open_orders":
+                value = "최대 주문 갯수"
+            else:
+                pass
+
+
+            form.addRow(f"{value} {type_}", edit)
 
             self.edits[name] = (edit, type_)
 
