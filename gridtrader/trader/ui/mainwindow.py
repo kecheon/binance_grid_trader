@@ -45,11 +45,11 @@ class MainWindow(QtWidgets.QMainWindow):
         cta_widget, dock = self.create_dock(CtaManager, 'Strategies', QtCore.Qt.LeftDockWidgetArea)
 
         self.create_dock(
-            ActiveOrderMonitor, "Active Orders", QtCore.Qt.RightDockWidgetArea
+            ActiveOrderMonitor, "활성 주문", QtCore.Qt.RightDockWidgetArea
         )
 
         log_monitor, dock2 = self.create_dock(
-            LogMonitor, "Logs", QtCore.Qt.RightDockWidgetArea
+            LogMonitor, "로그", QtCore.Qt.RightDockWidgetArea
         )
 
         cta_widget.log_monitor = log_monitor
@@ -59,12 +59,12 @@ class MainWindow(QtWidgets.QMainWindow):
         bar = self.menuBar()
 
         # System menu
-        sys_menu = bar.addMenu("Config Binance API")
+        sys_menu = bar.addMenu("Binance API 설정")
 
         gateway_names = self.main_engine.get_all_gateway_names()
         for name in gateway_names:
             func = partial(self.connect, name)
-            self.add_menu_action(sys_menu, f"Connect {name}", "connect.ico", func)
+            self.add_menu_action(sys_menu, f"{name} 연결", "connect.ico", func)
 
     def add_menu_action(
             self,
@@ -113,8 +113,8 @@ class MainWindow(QtWidgets.QMainWindow):
         """
         reply = QtWidgets.QMessageBox.question(
             self,
-            "Exit",
-            "Confirm Exit?",
+            "종료",
+            "종료할까요?",
             QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
             QtWidgets.QMessageBox.No,
         )

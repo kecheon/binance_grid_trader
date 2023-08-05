@@ -283,16 +283,16 @@ class ActiveOrderMonitor(BaseMonitor):
 
     headers: Dict[str, dict] = {
         # "orderid": {"display": "Order Id", "cell": BaseCell, "update": False},
-        "symbol": {"display": "Symbol", "cell": BaseCell, "update": False},
-        "type": {"display": "Type", "cell": EnumCell, "update": False},
-        "direction": {"display": "Direction", "cell": DirectionCell, "update": False},
-        "offset": {"display": "Offset", "cell": EnumCell, "update": False},
-        "price": {"display": "Price", "cell": BaseCell, "update": False},
-        "volume": {"display": "Volume", "cell": BaseCell, "update": True},
-        "traded": {"display": "Traded", "cell": BaseCell, "update": True},
-        "status": {"display": "Status", "cell": EnumCell, "update": True},
-        "datetime": {"display": "Time", "cell": TimeCell, "update": True},
-        "gateway_name": {"display": "Gateway", "cell": BaseCell, "update": False},
+        "symbol": {"display": "심볼", "cell": BaseCell, "update": False},
+        "type": {"display": "주문유형", "cell": EnumCell, "update": False},
+        "direction": {"display": "방향", "cell": DirectionCell, "update": False},
+        "offset": {"display": "오프셋", "cell": EnumCell, "update": False},
+        "price": {"display": "가격", "cell": BaseCell, "update": False},
+        "volume": {"display": "수량", "cell": BaseCell, "update": True},
+        "traded": {"display": "체결", "cell": BaseCell, "update": True},
+        "status": {"display": "상태", "cell": EnumCell, "update": True},
+        "datetime": {"display": "시각", "cell": TimeCell, "update": True},
+        "gateway_name": {"display": "게이트웨이", "cell": BaseCell, "update": False},
     }
 
     def init_ui(self):
@@ -301,7 +301,7 @@ class ActiveOrderMonitor(BaseMonitor):
         """
         super(ActiveOrderMonitor, self).init_ui()
 
-        self.setToolTip("Double Click To Cancel Order")
+        self.setToolTip("취소하려면 더블클릭")
         self.itemDoubleClicked.connect(self.cancel_order)
 
     def cancel_order(self, cell: BaseCell) -> None:
@@ -661,12 +661,12 @@ class SettingEditor(QtWidgets.QDialog):
         # Add vt_symbol and name edit if add new strategy
         if self.class_name:
             self.setWindowTitle(f"Add Strategy：{self.class_name}")
-            button_text = "Confirm"
+            button_text = "확인"
             parameters = {"strategy_name": "", "vt_symbol": ""}
             parameters.update(self.parameters)
         else:
             self.setWindowTitle(f"Edit Parameters：{self.strategy_name}")
-            button_text = "Confirm"
+            button_text = "확인"
             parameters = self.parameters
 
         for name, value in parameters.items():
