@@ -38,11 +38,15 @@ from gridtrader.trader.object import (
 )
 from gridtrader.event import EVENT_TIMER, Event, EventEngine
 
+# USDT futures
 F_REST_HOST: str = "https://fapi.binance.com"
+TEST_REST_HOST: str = "https://testnet.binancefuture.com"
 F_WEBSOCKET_TRADE_HOST: str = "wss://fstream.binance.com/ws/"
 F_WEBSOCKET_DATA_HOST: str = "wss://fstream.binance.com/stream?streams="
 
+# coinM futures
 D_REST_HOST: str = "https://dapi.binance.com"
+TEST_D_REST_HOST: str = "https://testnet.binancefuture.com"
 D_WEBSOCKET_TRADE_HOST: str = "wss://dstream.binance.com/ws/"
 D_WEBSOCKET_DATA_HOST: str = "wss://dstream.binance.com/stream?streams="
 
@@ -311,13 +315,10 @@ class BinancesRestApi(RestClient):
 
     def set_leverage(self, symbol, leverage) -> Request:
         data = {"security": Security.SIGNED}
-        params = {
-            "symbol": symbol,
-            "leverage": leverage
-        }
+        params = {"symbol": symbol, "leverage": leverage}
         path = "/fapi/v1/leverage"
         self.add_request(
-             method="POST",
+            method="POST",
             path=path,
             params=params,
             callback=self.on_set_leverage,
@@ -615,7 +616,7 @@ class BinancesRestApi(RestClient):
         """"""
         pass
 
-    def on_set_leverage(self, data:dict, request: Request) -> None:
+    def on_set_leverage(self, data: dict, request: Request) -> None:
         msg = f"set leverage， Code: {request.response.status_code}, Msg：{request.response.text}"
         print(msg)
 
