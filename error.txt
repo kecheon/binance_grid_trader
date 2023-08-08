@@ -1,0 +1,3 @@
+response:{"code":-2011,"msg":"Unknown order sent."}
+request : DELETE /fapi/v1/order?origClientOrderId=x-FdBeCPuV230808122728000006&symbol=BTCUSDT&timestamp=1691500578513&signature=b580235613d0a67c80dcfe8d86dd4fcf11352b1e5bd84eda9889a0c72c6ad553 failed because 400: 
+headers: {'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json', 'X-MBX-APIKEY': '41GkmjbBhBUylGvlghfHdAczo2mMBZcpjfAWq4mLEjIU3pv5O39V1fkO7TIqTl43'}
