@@ -90,6 +90,7 @@ symbol_name_map: Dict[str, str] = {}
 
 class BinancesGateway(BaseGateway):
     """
+    TODO: select testnet when create GW
     Trader Gateway for Binance connection.
     """
 
@@ -103,16 +104,24 @@ class BinancesGateway(BaseGateway):
 
     exchanges: Exchange = [Exchange.BINANCE]
 
-    def __init__(self, event_engine: EventEngine):
-        """Constructor"""
+    def __init__(self, event_engine: EventEngine, **kwargs):
+        """
+        Constructor
+        If test
+        setting = default_setting
+        switch rest_api host
+        """
         super().__init__(event_engine, "Futures")
 
         self.trade_ws_api = BinancesTradeWebsocketApi(self)
         self.market_ws_api = BinancesDataWebsocketApi(self)
-        self.rest_api = BinancesRestApi(self)
+        if kwargs["testnet"]:
+            self.rest_api = BinancesRestApi(self, testnet=True)
+        else:
+            self.rest_api = BinancesRestApi(self)
 
     def connect(self, setting: dict) -> None:
-        """"""
+        """ """
         key = setting["key"]
         secret = setting["secret"]
         proxy_host = setting["proxy_host"] if setting["proxy_host"] else ""
@@ -168,10 +177,13 @@ class BinancesRestApi(RestClient):
     BINANCE Future REST API
     """
 
-    def __init__(self, gateway: BinancesGateway):
+    def __init__(self, gateway: BinancesGateway, **kwargs):
         """"""
         super().__init__()
 
+        self.testnet = False
+        if kwargs["testnet"]:
+            self.testnet = True
         self.gateway: BinancesGateway = gateway
         self.gateway_name: str = gateway.gateway_name
 
@@ -256,7 +268,10 @@ class BinancesRestApi(RestClient):
         )
 
         if self.usdt_base:
-            self.init(F_REST_HOST, proxy_host, proxy_port)
+            if self.testnet:
+                self.init(TEST_REST_HOST, proxy_host, proxy_port)
+            else:
+                self.init(F_REST_HOST, proxy_host, proxy_port)
         else:
             self.init(D_REST_HOST, proxy_host, proxy_port)
 
