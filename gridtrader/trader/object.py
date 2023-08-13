@@ -64,10 +64,11 @@ class TickData(BaseData):
         """"""
         self.vt_symbol = f"{self.symbol}.{self.exchange.value}"
 
+
 @dataclass
 class OrderData(BaseData):
     """
-    Order data contains information for tracking lastest status
+    Order data contains information for tracking latest status
     of a specific order.
     """
 
@@ -281,12 +282,14 @@ class CancelRequest:
         """"""
         self.vt_symbol = f"{self.symbol}.{self.exchange.value}"
 
+
 @dataclass
 class QueryRequest:
     """
     Request sending to specific gateway for query an existing order.
     Author: 51bitquant
     """
+
     orderid: str
     symbol: str
     exchange: Exchange

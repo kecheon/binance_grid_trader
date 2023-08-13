@@ -16,11 +16,11 @@ class CtaTemplate(ABC):
     variables = []
 
     def __init__(
-            self,
-            cta_engine: Any,
-            strategy_name: str,
-            vt_symbol: str,
-            setting: dict,
+        self,
+        cta_engine: Any,
+        strategy_name: str,
+        vt_symbol: str,
+        setting: dict,
     ):
         """"""
         self.cta_engine = cta_engine
@@ -122,7 +122,10 @@ class CtaTemplate(ABC):
     def on_trade(self, trade: TradeData):
         """
         Callback of new trade data update.
+        TODO create new open order
         """
+        print("========trade=========")
+        print(trade)
         pass
 
     @virtual
@@ -131,7 +134,6 @@ class CtaTemplate(ABC):
         Callback of new order data update.
         """
         pass
-
 
     def buy(self, price: float, volume: float):
         """
@@ -158,11 +160,7 @@ class CtaTemplate(ABC):
         return self.send_order(Direction.LONG, Offset.CLOSE, price, volume)
 
     def send_order(
-        self,
-        direction: Direction,
-        offset: Offset,
-        price: float,
-        volume: float
+        self, direction: Direction, offset: Offset, price: float, volume: float
     ):
         """
         Send a new order.

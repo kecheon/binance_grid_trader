@@ -20,7 +20,7 @@ from gridtrader.event import (
     EVENT_CONTRACT,
     EVENT_LOG,
     EVENT_CTA_LOG,
-    EVENT_CTA_STRATEGY
+    EVENT_CTA_STRATEGY,
 )
 from .gateway import BaseGateway
 from .object import (
@@ -34,7 +34,7 @@ from .object import (
     TradeData,
     PositionData,
     AccountData,
-    ContractData
+    ContractData,
 )
 from .setting import SETTINGS
 from .utility import get_folder_path, TRADER_DIR
@@ -48,13 +48,15 @@ from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
 from copy import copy
 
-from gridtrader.trader.constant import (
-    Direction,
-    OrderType,
-    Offset
-)
+from gridtrader.trader.constant import Direction, OrderType, Offset
 
-from gridtrader.trader.utility import load_json, save_json, extract_vt_symbol, round_to, floor_to
+from gridtrader.trader.utility import (
+    load_json,
+    save_json,
+    extract_vt_symbol,
+    round_to,
+    floor_to,
+)
 
 
 class MainEngine:
@@ -62,7 +64,7 @@ class MainEngine:
     Acts as the core of Grid Trader.
     """
 
-    def __init__(self, event_engine: EventEngine = None):
+    def __init__(self, event_engine: EventEngine = None, **kwargs):
         """"""
         if event_engine:
             self.event_engine: EventEngine = event_engine
@@ -76,7 +78,11 @@ class MainEngine:
         os.chdir(TRADER_DIR)  # Change working directory
 
         self.spot_gateway = BinanceGateway(self.event_engine)
-        self.future_gateway = BinancesGateway(self.event_engine)
+
+        if kwargs["testnet"]:
+            self.future_gateway = BinancesGateway(self.event_engine, testnet=True)
+        else:
+            self.future_gateway = BinancesGateway(self.event_engine)
 
         self.gateways[self.spot_gateway.gateway_name] = self.spot_gateway
         self.gateways[self.future_gateway.gateway_name] = self.future_gateway
@@ -178,12 +184,11 @@ class MainEngine:
         Send query order request to a specific gateway.
         """
         gateway = self.get_gateway(gateway_name)
-        if gateway and hasattr(gateway, 'query_order'):
+        if gateway and hasattr(gateway, "query_order"):
             gateway.query_order(req)
 
     def send_orders(self, reqs: Sequence[OrderRequest], gateway_name: str) -> List[str]:
-        """
-        """
+        """ """
         gateway = self.get_gateway(gateway_name)
         if gateway:
             return gateway.send_orders(reqs)
@@ -191,8 +196,7 @@ class MainEngine:
             return ["" for req in reqs]
 
     def cancel_orders(self, reqs: Sequence[CancelRequest], gateway_name: str) -> None:
-        """
-        """
+        """ """
         gateway = self.get_gateway(gateway_name)
         if gateway:
             gateway.cancel_orders(reqs)
@@ -232,10 +236,10 @@ class BaseEngine(ABC):
     """
 
     def __init__(
-            self,
-            main_engine: MainEngine,
-            event_engine: EventEngine,
-            engine_name: str,
+        self,
+        main_engine: MainEngine,
+        event_engine: EventEngine,
+        engine_name: str,
     ):
         """"""
         self.main_engine = main_engine
@@ -264,9 +268,7 @@ class LogEngine(BaseEngine):
         self.logger: logging.Logger = logging.getLogger("BeeBot-Binance Grid")
         self.logger.setLevel(self.level)
 
-        self.formatter = logging.Formatter(
-            "%(asctime)s  %(levelname)s: %(message)s"
-        )
+        self.formatter = logging.Formatter("%(asctime)s  %(levelname)s: %(message)s")
 
         self.add_null_handler()
 
@@ -303,9 +305,7 @@ class LogEngine(BaseEngine):
         log_path = get_folder_path("log")
         file_path = log_path.joinpath(filename)
 
-        file_handler = logging.FileHandler(
-            file_path, mode="a", encoding="utf8"
-        )
+        file_handler = logging.FileHandler(file_path, mode="a", encoding="utf8")
         file_handler.setLevel(self.level)
         file_handler.setFormatter(self.formatter)
         self.logger.addHandler(file_handler)
@@ -406,20 +406,23 @@ class OmsEngine(BaseEngine):
         self.position_update_interval += 1
         self.account_update_interval += 1
 
-        if self.order_update_interval >= SETTINGS.get('order_update_interval', 120):
+        if self.order_update_interval >= SETTINGS.get("order_update_interval", 120):
             self.order_update_interval = 0
             orders = self.get_all_active_orders()
             for order in orders:
-                if order.datetime and (datetime.now() - order.datetime).seconds > SETTINGS.get(
-                        'order_update_timer', 120):
+                if order.datetime and (
+                    datetime.now() - order.datetime
+                ).seconds > SETTINGS.get("order_update_timer", 120):
                     req = order.create_query_request()
                     self.main_engine.query_order(req, order.gateway_name)
 
-        if self.position_update_interval >= SETTINGS.get('position_update_interval', 120):
+        if self.position_update_interval >= SETTINGS.get(
+            "position_update_interval", 120
+        ):
             self.main_engine.query_position()
             self.position_update_interval = 0
 
-        if self.account_update_interval >= SETTINGS.get('account_update_interval', 120):
+        if self.account_update_interval >= SETTINGS.get("account_update_interval", 120):
             self.account_update_interval = 0
             self.main_engine.query_account()
 
@@ -493,8 +496,7 @@ class CtaEngine(BaseEngine):
 
     def __init__(self, main_engine: MainEngine, event_engine: EventEngine):
         """"""
-        super(CtaEngine, self).__init__(
-            main_engine, event_engine, 'strategy')
+        super(CtaEngine, self).__init__(main_engine, event_engine, "strategy")
 
         self.strategy_setting = {}  # strategy_name: dict
         self.strategy_data = {}  # strategy_name: dict
@@ -502,8 +504,7 @@ class CtaEngine(BaseEngine):
         self.classes = {}  # class_name: stategy_class
         self.strategies = {}  # strategy_name: strategy
 
-        self.symbol_strategy_map = defaultdict(
-            list)  # vt_symbol: strategy list
+        self.symbol_strategy_map = defaultdict(list)  # vt_symbol: strategy list
 
         self.orderid_strategy_map = {}  # vt_orderid: strategy
 
@@ -514,8 +515,7 @@ class CtaEngine(BaseEngine):
         self.vt_tradeids = set()  # for filtering duplicate trade
 
     def init_engine(self):
-        """
-        """
+        """ """
         self.load_strategy_class()
         self.load_strategy_setting()
         self.load_strategy_data()
@@ -528,6 +528,7 @@ class CtaEngine(BaseEngine):
         """
         from .strategies.future_grid_strategy import FutureGridStrategy
         from .strategies.spot_grid_strategy import SpotGridStrategy
+
         self.classes[FutureGridStrategy.__name__] = FutureGridStrategy
         self.classes[SpotGridStrategy.__name__] = SpotGridStrategy
 
@@ -542,7 +543,7 @@ class CtaEngine(BaseEngine):
                 strategy_config["class_name"],
                 strategy_name,
                 strategy_config["vt_symbol"],
-                strategy_config["setting"]
+                strategy_config["setting"],
             )
 
     def load_strategy_data(self):
@@ -618,15 +619,14 @@ class CtaEngine(BaseEngine):
         self.put_strategy_event(strategy)
 
     def send_order(
-            self,
-            strategy: CtaTemplate,
-            direction: Direction,
-            offset: Offset,
-            price: float,
-            volume: float
+        self,
+        strategy: CtaTemplate,
+        direction: Direction,
+        offset: Offset,
+        price: float,
+        volume: float,
     ):
-        """
-        """
+        """ """
         contract = self.main_engine.get_contract(strategy.vt_symbol)
         if not contract:
             self.write_log(f"Symbol Not Found: {strategy.vt_symbol}", strategy)
@@ -636,39 +636,35 @@ class CtaEngine(BaseEngine):
         price = round_to(price, contract.price_tick)
         volume = floor_to(volume, contract.min_volume)
 
-        return self.send_limit_order(strategy, contract, direction, offset, price, volume)
+        return self.send_limit_order(
+            strategy, contract, direction, offset, price, volume
+        )
 
     def send_limit_order(
-            self,
-            strategy: CtaTemplate,
-            contract: ContractData,
-            direction: Direction,
-            offset: Offset,
-            price: Decimal,
-            volume: Decimal
+        self,
+        strategy: CtaTemplate,
+        contract: ContractData,
+        direction: Direction,
+        offset: Offset,
+        price: Decimal,
+        volume: Decimal,
     ):
         """
         Send a limit order to server.
         """
         return self.send_server_order(
-            strategy,
-            contract,
-            direction,
-            offset,
-            price,
-            volume,
-            OrderType.LIMIT
+            strategy, contract, direction, offset, price, volume, OrderType.LIMIT
         )
 
     def send_server_order(
-            self,
-            strategy: CtaTemplate,
-            contract: ContractData,
-            direction: Direction,
-            offset: Offset,
-            price: Decimal,
-            volume: Decimal,
-            type: OrderType
+        self,
+        strategy: CtaTemplate,
+        contract: ContractData,
+        direction: Direction,
+        offset: Offset,
+        price: Decimal,
+        volume: Decimal,
+        type: OrderType,
     ):
         """
         Send a new order to server.
@@ -682,15 +678,13 @@ class CtaEngine(BaseEngine):
             type=type,
             price=price,
             volume=volume,
-            reference=f"{strategy.strategy_name}"
+            reference=f"{strategy.strategy_name}",
         )
 
         # Convert with offset converter
         # req_list = self.offset_converter.convert_order_request(original_req, lock)
 
-
-        vt_orderid = self.main_engine.send_order(
-            original_req, contract.gateway_name)
+        vt_orderid = self.main_engine.send_order(original_req, contract.gateway_name)
 
         # Check if sending order successful
         if not vt_orderid:
@@ -702,10 +696,8 @@ class CtaEngine(BaseEngine):
 
         return [vt_orderid]
 
-
     def cancel_order(self, strategy: CtaTemplate, vt_orderid: str):
-        """
-        """
+        """ """
         self.cancel_server_order(strategy, vt_orderid)
 
     def cancel_server_order(self, strategy: CtaTemplate, vt_orderid: str):
@@ -714,7 +706,9 @@ class CtaEngine(BaseEngine):
         """
         order = self.main_engine.get_active_order(vt_orderid)
         if not order:
-            self.write_log(f"Cancel Order Failed，Order Id Not Found: {vt_orderid}", strategy)
+            self.write_log(
+                f"Cancel Order Failed，Order Id Not Found: {vt_orderid}", strategy
+            )
             return
 
         req = order.create_cancel_request()
@@ -743,7 +737,7 @@ class CtaEngine(BaseEngine):
             return None
 
     def call_strategy_func(
-            self, strategy: CtaTemplate, func: Callable, params: Any = None
+        self, strategy: CtaTemplate, func: Callable, params: Any = None
     ):
         """
         Call function of a strategy and catch any exception raised.
@@ -761,7 +755,7 @@ class CtaEngine(BaseEngine):
             sys.stderr.write(msg)
 
     def add_strategy(
-            self, class_name: str, strategy_name: str, vt_symbol: str, setting: dict
+        self, class_name: str, strategy_name: str, vt_symbol: str, setting: dict
     ):
         """
         Add a new strategy.
@@ -819,11 +813,13 @@ class CtaEngine(BaseEngine):
         # Subscribe market data
         contract = self.main_engine.get_contract(strategy.vt_symbol)
         if contract:
-            req = SubscribeRequest(
-                symbol=contract.symbol, exchange=contract.exchange)
+            req = SubscribeRequest(symbol=contract.symbol, exchange=contract.exchange)
             self.main_engine.subscribe(req, contract.gateway_name)
         else:
-            self.write_log(f"Subscribe Market Data Failed，Symbol Not Found {strategy.vt_symbol}", strategy)
+            self.write_log(
+                f"Subscribe Market Data Failed，Symbol Not Found {strategy.vt_symbol}",
+                strategy,
+            )
 
         # Put event to update init completed status.
         strategy.inited = True
@@ -836,7 +832,9 @@ class CtaEngine(BaseEngine):
         """
         strategy = self.strategies[strategy_name]
         if not strategy.inited:
-            self.write_log(f"Strategy {strategy.strategy_name} Start Failed，Please Init First.")
+            self.write_log(
+                f"Strategy {strategy.strategy_name} Start Failed，Please Init First."
+            )
             return
 
         if strategy.trading:
@@ -887,7 +885,9 @@ class CtaEngine(BaseEngine):
         """
         strategy = self.strategies[strategy_name]
         if strategy.trading:
-            self.write_log(f"Strategy {strategy.strategy_name} Remove Failed，Please Stop First.")
+            self.write_log(
+                f"Strategy {strategy.strategy_name} Remove Failed，Please Stop First."
+            )
             return
 
         # Remove setting
@@ -948,20 +948,17 @@ class CtaEngine(BaseEngine):
         return strategy.get_parameters()
 
     def init_all_strategies(self):
-        """
-        """
+        """ """
         for strategy_name in self.strategies.keys():
             self.init_strategy(strategy_name)
 
     def start_all_strategies(self):
-        """
-        """
+        """ """
         for strategy_name in self.strategies.keys():
             self.start_strategy(strategy_name)
 
     def stop_all_strategies(self):
-        """
-        """
+        """ """
         for strategy_name in self.strategies.keys():
             self.stop_strategy(strategy_name)
 
@@ -1003,6 +1000,6 @@ class CtaEngine(BaseEngine):
         if strategy:
             msg = f"{strategy.strategy_name}: {msg}"
 
-        log = LogData(msg=msg, gateway_name='cta')
+        log = LogData(msg=msg, gateway_name="cta")
         event = Event(type=EVENT_LOG, data=log)
         self.event_engine.put(event)

@@ -90,7 +90,6 @@ symbol_name_map: Dict[str, str] = {}
 
 class BinancesGateway(BaseGateway):
     """
-    TODO: select testnet when create GW
     Trader Gateway for Binance connection.
     """
 
@@ -429,8 +428,8 @@ class BinancesRestApi(RestClient):
             "newClientOrderId": orderid,
         }
 
-        if req.offset == Offset.CLOSE:
-            params["reduceOnly"] = True
+        # if req.offset == Offset.CLOSE:
+        params["reduceOnly"] = True
 
         if self.usdt_base:
             path = "/fapi/v1/order"
