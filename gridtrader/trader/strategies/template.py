@@ -122,10 +122,7 @@ class CtaTemplate(ABC):
     def on_trade(self, trade: TradeData):
         """
         Callback of new trade data update.
-        TODO create new open order
         """
-        print("========trade=========")
-        print(trade)
         pass
 
     @virtual

@@ -82,7 +82,7 @@ class MainEngine:
         if kwargs["testnet"]:
             self.future_gateway = BinancesGateway(self.event_engine, testnet=True)
         else:
-            self.future_gateway = BinancesGateway(self.event_engine)
+            self.future_gateway = BinancesGateway(self.event_engine, testnet=False)
 
         self.gateways[self.spot_gateway.gateway_name] = self.spot_gateway
         self.gateways[self.future_gateway.gateway_name] = self.future_gateway
@@ -617,6 +617,8 @@ class CtaEngine(BaseEngine):
 
         # Update GUI
         self.put_strategy_event(strategy)
+        print("=====on_trade in gateway===========")
+        print(strategy)
 
     def send_order(
         self,
@@ -992,8 +994,6 @@ class CtaEngine(BaseEngine):
         data = strategy.get_data()
         event = Event(EVENT_CTA_STRATEGY, data)
         self.event_engine.put(event)
-        print("==========strategy_event===========")
-        print(data)
 
     def write_log(self, msg: str, strategy: CtaTemplate = None):
         """

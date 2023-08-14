@@ -105,6 +105,10 @@ class BaseGateway(ABC):
         """
         self.on_event(EVENT_TRADE, trade)
         self.on_event(EVENT_TRADE + trade.vt_symbol, trade)
+        msg = f"gateway.on_trade order_id: {trade.orderid} vt_orderid: {trade.vt_orderid}"
+        self.write_log(msg)
+        print("=====on_trade in gateway===========")
+        print(msg)
 
     def on_order(self, order: OrderData) -> None:
         """

@@ -240,9 +240,5 @@ class FutureGridStrategy(CtaTemplate):
         """
         Callback of new trade data update.
         """
-        print("=========on_trade==============")
-        print(trade)
-        # self.write_log(
-        #         f"Strategy {strategy.strategy_name} Start Failed，Please Init First."
-        #     )
+        self.write_log(f"strategy.on_trade order_id: {trade.orderid} vt_orderid: {trade.vt_orderid}")
         self.put_event()

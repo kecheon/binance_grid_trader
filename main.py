@@ -7,7 +7,7 @@ from gridtrader.trader.ui import MainWindow, create_qapp
 if __name__ == "__main__":
     """ """
     event_engine = EventEngine()
-    main_engine = MainEngine(event_engine, testnet=True)
+    main_engine = MainEngine(event_engine, testnet=False)
 
     qapp = create_qapp()
     main_window = MainWindow(main_engine, event_engine)

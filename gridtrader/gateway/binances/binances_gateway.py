@@ -117,7 +117,7 @@ class BinancesGateway(BaseGateway):
         if kwargs["testnet"]:
             self.rest_api = BinancesRestApi(self, testnet=True)
         else:
-            self.rest_api = BinancesRestApi(self)
+            self.rest_api = BinancesRestApi(self, testnet=False)
 
     def connect(self, setting: dict) -> None:
         """ """
