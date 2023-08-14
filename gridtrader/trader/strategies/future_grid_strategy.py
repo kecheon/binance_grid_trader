@@ -23,6 +23,7 @@ class FutureGridStrategy(CtaTemplate):
     Binance Referral Link: https://www.binancezh.pro/cn/futures/ref/51bitquant
 
     """
+
     author = "51bitquant"
 
     # parameters
@@ -40,7 +41,13 @@ class FutureGridStrategy(CtaTemplate):
     step_price = 0.0  # price step between two grid 网格的间隔
     trade_times = 0  # trade times
 
-    parameters = ["upper_price", "bottom_price", "grid_number", "order_volume", "max_open_orders"]
+    parameters = [
+        "upper_price",
+        "bottom_price",
+        "grid_number",
+        "order_volume",
+        "max_open_orders",
+    ]
 
     variables = ["avg_price", "step_price", "trade_times"]
 
@@ -71,7 +78,9 @@ class FutureGridStrategy(CtaTemplate):
         self.contract_data = self.cta_engine.main_engine.get_contract(self.vt_symbol)
 
         if not self.contract_data:
-            self.write_log(f"Could Not Find The Symbol:{self.vt_symbol}, Please Connect the Api First.")
+            self.write_log(
+                f"Could Not Find The Symbol:{self.vt_symbol}, Please Connect the Api First."
+            )
             self.inited = False
         else:
             self.inited = True
@@ -96,7 +105,6 @@ class FutureGridStrategy(CtaTemplate):
             # remove the order(highest price order for short, lowest price to for long)
             # to keep the max open order meet requirements
             if len(self.long_orders_dict.keys()) > self.max_open_orders:
-
                 vt = list(self.long_orders_dict.keys())[0]
                 lowest_price = self.long_orders_dict[vt]
                 cancel_order_id = None
@@ -111,7 +119,6 @@ class FutureGridStrategy(CtaTemplate):
                     self.cancel_order(cancel_order_id)
 
             if len(self.short_orders_dict.keys()) > self.max_open_orders:
-
                 vt = list(self.short_orders_dict.keys())[0]
                 highest_price = self.short_orders_dict[vt]
                 cancel_order_id = None
@@ -142,10 +149,11 @@ class FutureGridStrategy(CtaTemplate):
 
             self.step_price = float(floor_to(step_price, self.contract_data.price_tick))
 
-            mid_count = round((float(self.tick.bid_price_1) - self.bottom_price) / self.step_price)
+            mid_count = round(
+                (float(self.tick.bid_price_1) - self.bottom_price) / self.step_price
+            )
 
             if len(self.long_orders_dict.keys()) == 0:
-
                 for i in range(self.max_open_orders):
                     price = self.bottom_price + (mid_count - i - 1) * self.step_price
                     if price < self.bottom_price:
@@ -170,14 +178,15 @@ class FutureGridStrategy(CtaTemplate):
         """
         Callback of new order data update.
         """
-        if order.vt_orderid not in (list(self.short_orders_dict.keys()) + list(self.long_orders_dict.keys())):
+        if order.vt_orderid not in (
+            list(self.short_orders_dict.keys()) + list(self.long_orders_dict.keys())
+        ):
             return
 
         self.pos_calculator.update_position(order)
         self.avg_price = self.pos_calculator.avg_price
 
         if order.status == Status.ALLTRADED:
-
             if order.vt_orderid in self.long_orders_dict.keys():
                 del self.long_orders_dict[order.vt_orderid]
 
@@ -223,7 +232,6 @@ class FutureGridStrategy(CtaTemplate):
                 del self.long_orders_dict[order.vt_orderid]
 
             elif order.vt_orderid in self.short_orders_dict.keys():
-
                 del self.short_orders_dict[order.vt_orderid]
 
         self.put_event()
@@ -232,4 +240,9 @@ class FutureGridStrategy(CtaTemplate):
         """
         Callback of new trade data update.
         """
+        print("=========on_trade==============")
+        print(trade)
+        # self.write_log(
+        #         f"Strategy {strategy.strategy_name} Start Failed，Please Init First."
+        #     )
         self.put_event()

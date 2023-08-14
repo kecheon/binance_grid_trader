@@ -428,8 +428,8 @@ class BinancesRestApi(RestClient):
             "newClientOrderId": orderid,
         }
 
-        # if req.offset == Offset.CLOSE:
-        params["reduceOnly"] = True
+        if req.offset == Offset.CLOSE:
+            params["reduceOnly"] = True
 
         if self.usdt_base:
             path = "/fapi/v1/order"

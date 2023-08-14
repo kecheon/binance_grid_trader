@@ -992,6 +992,8 @@ class CtaEngine(BaseEngine):
         data = strategy.get_data()
         event = Event(EVENT_CTA_STRATEGY, data)
         self.event_engine.put(event)
+        print("==========strategy_event===========")
+        print(data)
 
     def write_log(self, msg: str, strategy: CtaTemplate = None):
         """
