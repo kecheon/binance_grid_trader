@@ -8,11 +8,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from gridtrader.event import Event, EventEngine
 from ..constant import Direction
 from ..engine import MainEngine
-from gridtrader.event import (
-    EVENT_LOG,
-    EVENT_CTA_STRATEGY,
-    EVENT_ORDER
-)
+from gridtrader.event import EVENT_LOG, EVENT_CTA_STRATEGY, EVENT_ORDER
 from ..utility import load_json, save_json
 
 COLOR_LONG = QtGui.QColor("red")
@@ -248,7 +244,6 @@ class BaseMonitor(QtWidgets.QTableWidget):
         """
         self.horizontalHeader().resizeSections(QtWidgets.QHeaderView.ResizeToContents)
 
-
     def contextMenuEvent(self, event: QtGui.QContextMenuEvent) -> None:
         """
         Show menu with right click.
@@ -282,15 +277,15 @@ class ActiveOrderMonitor(BaseMonitor):
     sorting = True
 
     headers: Dict[str, dict] = {
-        # "orderid": {"display": "Order Id", "cell": BaseCell, "update": False},
+        "orderid": {"display": "OrderId", "cell": BaseCell, "update": False},
         "symbol": {"display": "심볼", "cell": BaseCell, "update": False},
-        "type": {"display": "주문유형", "cell": EnumCell, "update": False},
-        "direction": {"display": "방향", "cell": DirectionCell, "update": False},
-        "offset": {"display": "오프셋", "cell": EnumCell, "update": False},
+        "type": {"display": "주문타입", "cell": EnumCell, "update": False},
+        "direction": {"display": "포지션", "cell": DirectionCell, "update": False},
+        "offset": {"display": "상태", "cell": EnumCell, "update": False},
         "price": {"display": "가격", "cell": BaseCell, "update": False},
-        "volume": {"display": "수량", "cell": BaseCell, "update": True},
-        "traded": {"display": "체결", "cell": BaseCell, "update": True},
-        "status": {"display": "상태", "cell": EnumCell, "update": True},
+        "volume": {"display": "주문수량", "cell": BaseCell, "update": True},
+        "traded": {"display": "체결수량", "cell": BaseCell, "update": True},
+        "status": {"display": "처리상태", "cell": EnumCell, "update": True},
         "datetime": {"display": "시각", "cell": TimeCell, "update": True},
         "gateway_name": {"display": "게이트웨이", "cell": BaseCell, "update": False},
     }
@@ -339,7 +334,7 @@ class CtaManager(QtWidgets.QWidget):
 
         self.main_engine = main_engine
         self.event_engine = event_engine
-        self.cta_engine = main_engine.get_engine('strategy')
+        self.cta_engine = main_engine.get_engine("strategy")
 
         self.managers = {}
 
@@ -358,14 +353,14 @@ class CtaManager(QtWidgets.QWidget):
         add_button = QtWidgets.QPushButton("새 전략")
         add_button.clicked.connect(self.add_strategy)
 
-        init_button = QtWidgets.QPushButton("매매 준비")
-        init_button.clicked.connect(self.cta_engine.init_all_strategies)
+        # init_button = QtWidgets.QPushButton("매매 준비")
+        # init_button.clicked.connect(self.cta_engine.init_all_strategies)
 
-        start_button = QtWidgets.QPushButton("매매 개시")
-        start_button.clicked.connect(self.cta_engine.start_all_strategies)
+        # start_button = QtWidgets.QPushButton("매매 개시")
+        # start_button.clicked.connect(self.cta_engine.start_all_strategies)
 
-        stop_button = QtWidgets.QPushButton("매매 중단")
-        stop_button.clicked.connect(self.cta_engine.stop_all_strategies)
+        # stop_button = QtWidgets.QPushButton("매매 중단")
+        # stop_button.clicked.connect(self.cta_engine.stop_all_strategies)
 
         clear_button = QtWidgets.QPushButton("로그 삭제")
         clear_button.clicked.connect(self.clear_log)
@@ -385,9 +380,9 @@ class CtaManager(QtWidgets.QWidget):
         hbox1.addWidget(self.class_combo)
         hbox1.addWidget(add_button)
         hbox1.addStretch()
-        hbox1.addWidget(init_button)
-        hbox1.addWidget(start_button)
-        hbox1.addWidget(stop_button)
+        # hbox1.addWidget(init_button)
+        # hbox1.addWidget(start_button)
+        # hbox1.addWidget(stop_button)
         hbox1.addWidget(clear_button)
 
         grid = QtWidgets.QGridLayout()
@@ -401,17 +396,13 @@ class CtaManager(QtWidgets.QWidget):
 
     def update_class_combo(self):
         """"""
-        self.class_combo.addItems(
-            self.cta_engine.get_all_strategy_class_names()
-        )
+        self.class_combo.addItems(self.cta_engine.get_all_strategy_class_names())
 
     def register_event(self):
         """"""
         self.signal_strategy.connect(self.process_strategy_event)
 
-        self.event_engine.register(
-            EVENT_CTA_STRATEGY, self.signal_strategy.emit
-        )
+        self.event_engine.register(EVENT_CTA_STRATEGY, self.signal_strategy.emit)
 
     def process_strategy_event(self, event):
         """
@@ -448,12 +439,10 @@ class CtaManager(QtWidgets.QWidget):
             vt_symbol: str = setting.pop("vt_symbol")
             strategy_name = setting.pop("strategy_name")
 
-            if not vt_symbol.__contains__('.BINANCE'):
-                vt_symbol += '.BINANCE'
+            if not vt_symbol.__contains__(".BINANCE"):
+                vt_symbol += ".BINANCE"
 
-            self.cta_engine.add_strategy(
-                class_name, strategy_name, vt_symbol, setting
-            )
+            self.cta_engine.add_strategy(class_name, strategy_name, vt_symbol, setting)
 
     def clear_log(self):
         """"""
@@ -466,9 +455,7 @@ class StrategyManager(QtWidgets.QFrame):
     Manager for a strategy
     """
 
-    def __init__(
-            self, cta_manager: CtaManager, cta_engine: CtaEngine, data: dict
-    ):
+    def __init__(self, cta_manager: CtaManager, cta_engine: CtaEngine, data: dict):
         """"""
         super(StrategyManager, self).__init__()
 
@@ -508,9 +495,7 @@ class StrategyManager(QtWidgets.QFrame):
         class_name = self._data["class_name"]
         author = self._data["author"]
 
-        label_text = (
-            f"{strategy_name}  -  {vt_symbol}  ({class_name})"
-        )
+        label_text = f"{strategy_name}  -  {vt_symbol}  ({class_name})"
         label = QtWidgets.QLabel(label_text)
         label.setAlignment(QtCore.Qt.AlignCenter)
 
@@ -613,9 +598,7 @@ class DataMonitor(QtWidgets.QTableWidget):
         self.setHorizontalHeaderLabels(labels)
 
         self.setRowCount(1)
-        self.verticalHeader().setSectionResizeMode(
-            QtWidgets.QHeaderView.Stretch
-        )
+        self.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
         self.verticalHeader().setVisible(False)
         self.setEditTriggers(self.NoEditTriggers)
 
@@ -640,9 +623,7 @@ class SettingEditor(QtWidgets.QDialog):
     For creating new strategy and editing strategy parameters.
     """
 
-    def __init__(
-            self, parameters: dict, strategy_name: str = "", class_name: str = ""
-    ):
+    def __init__(self, parameters: dict, strategy_name: str = "", class_name: str = ""):
         """"""
         super(SettingEditor, self).__init__()
 
@@ -697,7 +678,6 @@ class SettingEditor(QtWidgets.QDialog):
                 value = "최대 주문 갯수"
             else:
                 pass
-
 
             form.addRow(f"{value} {type_}", edit)
 
@@ -764,8 +744,7 @@ class ConnectDialog(QtWidgets.QDialog):
         self.setWindowTitle(f"Connect {self.gateway_name}")
 
         # Default setting provides field name, field data type and field default value.
-        default_setting = self.main_engine.get_default_setting(
-            self.gateway_name)
+        default_setting = self.main_engine.get_default_setting(self.gateway_name)
 
         # Saved setting provides field data used last time.
         loaded_setting = load_json(self.filename)
@@ -818,4 +797,3 @@ class ConnectDialog(QtWidgets.QDialog):
         self.main_engine.connect(setting, self.gateway_name)
 
         self.accept()
-
