@@ -27,29 +27,45 @@ def excepthook(exctype: type, value: Exception, tb: types.TracebackType) -> None
     sys.stderr.write(msg)
 
 
-def create_qapp(app_name: str = "BeeBot-Binance Grid") -> QtWidgets.QApplication:
-    """
-    Create Qt Application.
-    """
-    global qapp
+from PyQt5 import QtCore, QtGui, QtWidgets
+import qdarkstyle
+import platform
+import ctypes
 
-    sys.excepthook = excepthook
 
-    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
+# Singleton class for the Qt application
+class QtAppSingleton:
+    _instance = None
 
-    qapp = QtWidgets.QApplication(sys.argv)
-    qapp.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
+    def __new__(cls, app_name="BeeBot-Binance Grid"):
+        if cls._instance is None:
+            cls._instance = super(QtAppSingleton, cls).__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
 
-    font = QtGui.QFont(SETTINGS["font.family"], SETTINGS["font.size"])
-    qapp.setFont(font)
+    def __init__(self, app_name="BeeBot-Binance Grid"):
+        if self._initialized:
+            return
+        self._initialized = True
 
-    icon = QtGui.QIcon(get_icon_path(__file__, "vnpy.ico"))
-    qapp.setWindowIcon(icon)
+        self.qapp = None
+        self.create_qapp(app_name)
 
-    if "Windows" in platform.uname():
-        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(
-            app_name
-        )
+    def create_qapp(self, app_name):
+        sys.excepthook = excepthook
 
-    return qapp
+        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
 
+        self.qapp = QtWidgets.QApplication(sys.argv)
+        self.qapp.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
+
+        font = QtGui.QFont(SETTINGS["font.family"], SETTINGS["font.size"])
+        self.qapp.setFont(font)
+
+        icon = QtGui.QIcon(get_icon_path(__file__, "vnpy.ico"))
+        self.qapp.setWindowIcon(icon)
+
+        if "Windows" in platform.uname():
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(app_name)
+
+        return self.qapp

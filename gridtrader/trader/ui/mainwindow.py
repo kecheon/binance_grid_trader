@@ -9,25 +9,29 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 import gridtrader
 from gridtrader.event import EventEngine
-from .widget import (
-    ActiveOrderMonitor,
-    LogMonitor,
-    ConnectDialog
-)
+from .widget import ActiveOrderMonitor, LogMonitor, ConnectDialog
 
 from ..engine import MainEngine
 from ..utility import get_icon_path, TRADER_DIR
-from .widget import  CtaManager
+from .widget import CtaManager
 
 
 class MainWindow(QtWidgets.QMainWindow):
-    """
-    Main window of Grid Trader.
-    """
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super(MainWindow, cls).__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
 
     def __init__(self, main_engine: MainEngine, event_engine: EventEngine):
-        """"""
-        super(MainWindow, self).__init__()
+        if self._initialized:
+            return
+        self._initialized = True
+
+        super().__init__()
+
         self.main_engine: MainEngine = main_engine
         self.event_engine: EventEngine = event_engine
 
@@ -42,11 +46,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setWindowTitle(self.window_title)
 
         """"""
-        cta_widget, dock = self.create_dock(CtaManager, 'Strategies', QtCore.Qt.LeftDockWidgetArea)
-
-        self.create_dock(
-            ActiveOrderMonitor, "활성 주문", QtCore.Qt.RightDockWidgetArea
+        cta_widget, dock = self.create_dock(
+            CtaManager, "Strategies", QtCore.Qt.LeftDockWidgetArea
         )
+
+        self.create_dock(ActiveOrderMonitor, "활성 주문", QtCore.Qt.RightDockWidgetArea)
 
         log_monitor, dock2 = self.create_dock(
             LogMonitor, "로그", QtCore.Qt.RightDockWidgetArea
@@ -67,11 +71,11 @@ class MainWindow(QtWidgets.QMainWindow):
             self.add_menu_action(sys_menu, f"{name} 연결", "connect.ico", func)
 
     def add_menu_action(
-            self,
-            menu: QtWidgets.QMenu,
-            action_name: str,
-            icon_name: str,
-            func: Callable,
+        self,
+        menu: QtWidgets.QMenu,
+        action_name: str,
+        icon_name: str,
+        func: Callable,
     ) -> None:
         """"""
         icon = QtGui.QIcon(get_icon_path(__file__, icon_name))
@@ -83,10 +87,7 @@ class MainWindow(QtWidgets.QMainWindow):
         menu.addAction(action)
 
     def create_dock(
-            self,
-            widget_class: QtWidgets.QWidget,
-            name: str,
-            area: int
+        self, widget_class: QtWidgets.QWidget, name: str, area: int
     ) -> Tuple[QtWidgets.QWidget, QtWidgets.QDockWidget]:
         """
         Initialize a dock widget.
