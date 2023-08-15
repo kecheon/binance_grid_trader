@@ -340,6 +340,7 @@ class CtaManager(QtWidgets.QWidget):
 
         self.init_ui()
         self.register_event()
+        # TODO init time is the problem
         self.cta_engine.init_engine()
         self.update_class_combo()
 

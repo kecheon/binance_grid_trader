@@ -13,12 +13,11 @@ class CustomMainWindow(MainWindow):
 if __name__ == "__main__":
     event_engine = EventEngine()
     main_engine = MainEngine(event_engine, testnet=True)
-    # Usage:
+
     qapp_instance = QtAppSingleton()
     qapp = qapp_instance.qapp
 
-    # qapp = create_qapp()
-
+    # make context explicit
     main_window = CustomMainWindow(qapp, main_engine, event_engine)
     main_window.showMaximized()
 

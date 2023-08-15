@@ -100,9 +100,12 @@ class MainEngine:
     def add_engine(self, engine_class: Any) -> None:
         """
         Add function engine.
+        only if not exists
         """
-        engine = engine_class(self, self.event_engine)
-        self.engines[engine.engine_name] = engine
+        engine_name = engine_class.__name__
+        if engine_name not in self.engines:
+            engine = engine_class(self, self.event_engine)
+            self.engines[engine.engine_name] = engine
 
     def write_log(self, msg: str, source: str = "") -> None:
         """
@@ -489,7 +492,9 @@ class OmsEngine(BaseEngine):
 
 
 class CtaEngine(BaseEngine):
-    """"""
+    """
+    TODO 이 엔진은 언제 init_engine하는게 좋은가?
+    """
 
     setting_filename = "grid_strategy_setting.json"
     data_filename = "grid_strategy_data.json"
