@@ -1,0 +1,48 @@
+{
+    "BTCBUSD": {
+        "class_name": "FutureGridStrategy",
+        "vt_symbol": "BTCBUSD.BINANCE",
+        "setting": {
+            "upper_price": 42000,
+            "bottom_price": 39000,
+            "grid_number": 100,
+            "order_volume": 0.001,
+            "max_open_orders": 5
+        }
+    },
+    "btcbusd": {
+        "class_name": "SpotGridStrategy",
+        "vt_symbol": "btcbusd.BINANCE",
+        "setting": {
+            "class_name": "SpotGridStrategy",
+            "upper_price": 42000.0,
+            "bottom_price": 32000.0,
+            "grid_number": 50,
+            "order_volume": 0.001,
+            "invest_coin": "BUSD",
+            "max_open_orders": 5
+        }
+    },
+    "testnet": {
+        "class_name": "FutureGridStrategy",
+        "vt_symbol": "BTCUSDT.BINANCE",
+        "setting": {
+            "upper_price": 27000.0,
+            "bottom_price": 25000.0,
+            "grid_number": 40,
+            "order_volume": 0.1,
+            "max_open_orders": 1
+        }
+    },
+    "coinm": {
+        "class_name": "FutureGridStrategy",
+        "vt_symbol": "BTCUSD_PERP.BINANCE",
+        "setting": {
+            "upper_price": 27000.0,
+            "bottom_price": 25000.0,
+            "grid_number": 100,
+            "order_volume": 0.01,
+            "max_open_orders": 2
+        }
+    }
+}
